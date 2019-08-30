@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			#searchbar {
+				margin: 10 auto;
+				text-align: center;
+			}
+			
+			#result {
+				width: 100%;
+				min-width: 800px;
+				overflow: scroll;
+				margin: 10px;
+			}
+		</style>
+
+		<script type="text/javascript">
+			//创建 XMLHttpRequest
+			function getXmlHttp() {
+				var xmlhttp;
+				if (window.XMLHttpRequest) {
+					//  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+					xmlhttp = new XMLHttpRequest();
+				} else {
+					// IE6, IE5 浏览器执行代码
+					xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+				//设置超时时间
+				xmlhttp.timeout = 10 * 1000;
+
+				xmlhttp.onreadystatechange = function() {
+					if (xmlhttp.readyState == 4) {
+						if (xmlhttp.status == 200) {
+							show(xmlhttp.responseText);
+						}
+					}
+				}
+
+				return xmlhttp;
+			}
+
+			//创建 XMLHttpRequest
+			var xmlhttp = getXmlHttp();
+
+			function doSearch() {
+				var word = document.getElementById('keyword');
+				if (word.value) {
+					//规定请求的类型、URL 以及是否异步处理请求。
+					xmlhttp.open('GET',
+						`http://www.kuwo.cn/api/www/search/searchMusicBykeyWord?key=${word.value}&pn=1&rn=50`,
+						true);
+					//将请求发送到服务器。
+					xmlhttp.send();
+				}
+			}
+
+			function show(rslt) {
+				rslt = JSON.parse(rslt);
+				const defaultsrc =
+					'https://h5static.kuwo.cn/upload/image/4f768883f75b17a426c95b93692d98bec7d3ee9240f77f5ea68fc63870fdb050.png';
+				if (rslt && rslt.data && rslt.data.list) {
+						var str = '';
+					for (let music of rslt.data.list) {
+						str +=
+							`<tr>
+							<td>
+								<span>${music.name}</span>
+							</td>
+							<td>
+								<span>${music.artist}</span>
+							</td>
+							<td>
+								<span>${music.album}</span>
+							</td>
+							<td>
+								<span>${music.songTimeMinutes}</span>
+							</td>
+							</tr>`;
+					}
+
+					//console.log(str);
+					document.getElementById('tbody').innerHTML = str;
+				}
+			}
+		</script>
+	</head>
+	<body>
+
+		<div id="searchbar">
+			<input type="search" id="keyword" required="" placeholder="请输入歌曲名称">
+			<button onclick="doSearch()">搜索</button>
+		</div>
+		<table border="1" cellspacing="0px" cellpadding="5px" id="result">
+			<thread>
+				<tr>
+					<th>歌曲</th>
+					<th>歌手</th>
+					<th>专辑</th>
+					<th>时长</th>
+				</tr>
+			</thread>
+			<tbody id="tbody">
+				
+			</tbody>
+		</table>
+	</body>
+</html>
